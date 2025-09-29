@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UnitConvert Hub | Precision Unit Converter</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="site-header">
+      <div class="identity">
+        <h1>UnitConvert</h1>
+        <p>Every unit conversion, all in one place.</p>
+      </div>
+    </header>
+
+    <div class="layout">
+      <main class="main-content">
+
+        <section class="converter-shell" id="converter" aria-label="Unit converter">
+          <header class="converter-header">
+            <div class="input-group">
+              <label for="category-select">Discipline</label>
+              <select id="category-select"></select>
+            </div>
+            <div class="input-group">
+              <label for="conversion-select">Conversion</label>
+              <select id="conversion-select"></select>
+            </div>
+            <button type="button" class="reverse-button" id="reverse-button" aria-label="Reverse conversion">&#8646;</button>
+          </header>
+
+          <div class="conversion-panel">
+            <div class="conversion-side" aria-labelledby="from-label">
+              <div class="side-label">
+                <span class="badge">From</span>
+                <p id="from-label" class="side-title"></p>
+              </div>
+              <div class="field-input">
+                <input type="number" step="any" inputmode="decimal" id="from-value" aria-describedby="from-unit" />
+                <span class="unit-label" id="from-unit"></span>
+              </div>
+            </div>
+            <div class="conversion-side" aria-labelledby="to-label">
+              <div class="side-label">
+                <span class="badge badge-accent">To</span>
+                <p id="to-label" class="side-title"></p>
+              </div>
+              <div class="field-input">
+                <input type="number" step="any" inputmode="decimal" id="to-value" aria-describedby="to-unit" />
+                <span class="unit-label" id="to-unit"></span>
+              </div>
+            </div>
+          </div>
+
+          <footer class="conversion-meta" id="conversion-meta"></footer>
+        </section>
+
+      </main>
+
+      <aside class="sidebar">
+        <div class="ad-slot" role="complementary" aria-label="Sponsored">
+          <span class="ad-badge">Ad</span>
+          <h3>Upgrade Your Workflow</h3>
+          <p>Run UnitConvert Hub on your tablet and scan codes for real-time data logging. Get 20% off with code PRECISION20.</p>
+          <a class="ad-cta" href="https://example.com" target="_blank" rel="noopener">Explore Sponsored Tools</a>
+        </div>
+
+        <section class="insights">
+          <h3>Conversion Tips</h3>
+          <ul>
+            <li>Use the reverse arrow to flip before/after units instantly.</li>
+            <li>Keep both fields synced by typing on the side you know.</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="site-footer">
+      <p>&copy; <span id="year"></span> UnitConvert Hub. Built for analysts, engineers, educators, and the curious.</p>
+    </footer>
+  </div>
+
+  <script src="assets/js/catalog.js" type="module"></script>
+  <script src="assets/js/app.js" type="module"></script>
+</body>
+</html>
