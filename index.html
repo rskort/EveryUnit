@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UnitConvert Hub | Precision Unit Converter</title>
+  <title>EveryUnit | Global Unit Converter</title>
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
   <div class="page-shell">
     <header class="site-header">
       <div class="identity">
-        <h1>UnitConvert</h1>
+        <h1>EveryUnit</h1>
         <p>Every unit conversion, all in one place.</p>
       </div>
     </header>
@@ -20,36 +20,34 @@
 
         <section class="converter-shell" id="converter" aria-label="Unit converter">
           <header class="converter-header">
-            <div class="input-group">
-              <label for="category-select">Discipline</label>
-              <select id="category-select"></select>
+            <div class="discipline-section">
+              <label class="section-label">Discipline</label>
+              <div class="discipline-buttons" id="discipline-buttons"></div>
             </div>
-            <div class="input-group">
-              <label for="conversion-select">Conversion</label>
-              <select id="conversion-select"></select>
-            </div>
-            <button type="button" class="reverse-button" id="reverse-button" aria-label="Reverse conversion">&#8646;</button>
           </header>
 
           <div class="conversion-panel">
             <div class="conversion-side" aria-labelledby="from-label">
               <div class="side-label">
                 <span class="badge">From</span>
-                <p id="from-label" class="side-title"></p>
               </div>
+              <div class="unit-buttons" id="from-unit-buttons"></div>
               <div class="field-input">
                 <input type="number" step="any" inputmode="decimal" id="from-value" aria-describedby="from-unit" />
-                <span class="unit-label" id="from-unit"></span>
+                <span class="unit-label" id="from-unit-display"></span>
               </div>
             </div>
+            
+            <button type="button" class="reverse-button" id="reverse-button" aria-label="Reverse conversion">&#8646;</button>
+            
             <div class="conversion-side" aria-labelledby="to-label">
               <div class="side-label">
                 <span class="badge badge-accent">To</span>
-                <p id="to-label" class="side-title"></p>
               </div>
+              <div class="unit-buttons" id="to-unit-buttons"></div>
               <div class="field-input">
                 <input type="number" step="any" inputmode="decimal" id="to-value" aria-describedby="to-unit" />
-                <span class="unit-label" id="to-unit"></span>
+                <span class="unit-label" id="to-unit-display"></span>
               </div>
             </div>
           </div>
@@ -63,7 +61,7 @@
         <div class="ad-slot" role="complementary" aria-label="Sponsored">
           <span class="ad-badge">Ad</span>
           <h3>Upgrade Your Workflow</h3>
-          <p>Run UnitConvert Hub on your tablet and scan codes for real-time data logging. Get 20% off with code PRECISION20.</p>
+          <p>Run EveryUnit on your tablet and scan codes for real-time data logging. Get 20% off with code PRECISION20.</p>
           <a class="ad-cta" href="https://example.com" target="_blank" rel="noopener">Explore Sponsored Tools</a>
         </div>
 
@@ -78,7 +76,7 @@
     </div>
 
     <footer class="site-footer">
-      <p>&copy; <span id="year"></span> UnitConvert Hub. Built for analysts, engineers, educators, and the curious.</p>
+      <p>&copy; <span id="year"></span> EveryUnit. Built for analysts, engineers, educators, and the curious.</p>
     </footer>
   </div>
 

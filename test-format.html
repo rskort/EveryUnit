@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Format Number Test</title>
+</head>
+<body>
+    <h1>Number Formatting Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        const formatNumber = (value) => {
+          if (!Number.isFinite(value)) {
+            return "";
+          }
+
+          const absolute = Math.abs(value);
+          
+          // Use scientific notation for very large numbers (>= 1e9) or very small numbers (< 1e-6)
+          if (absolute >= 1e9 || (absolute < 1e-6 && absolute !== 0)) {
+            return value.toExponential(6).replace('e+', ' × 10^').replace('e-', ' × 10^-');
+          }
+          
+          // Determine appropriate decimal places based on magnitude
+          let maximumFractionDigits;
+          if (absolute >= 1000) {
+            maximumFractionDigits = 3;
+          } else if (absolute >= 100) {
+            maximumFractionDigits = 4;
+          } else if (absolute >= 10) {
+            maximumFractionDigits = 5;
+          } else if (absolute >= 1) {
+            maximumFractionDigits = 6;
+          } else if (absolute >= 0.1) {
+            maximumFractionDigits = 7;
+          } else if (absolute >= 0.01) {
+            maximumFractionDigits = 8;
+          } else {
+            maximumFractionDigits = 9;
+          }
+
+          // Format the number with proper decimal places
+          const result = value.toLocaleString('en-US', {
+            maximumFractionDigits,
+            useGrouping: false
+          });
+          
+          // Add thin spaces for thousands separation - simple regex approach
+          return result.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1\u2009');
+        };
+
+        // Test various numbers
+        const testNumbers = [
+            1,
+            10,
+            100,
+            1000,
+            1234,
+            12345,
+            123456,
+            1234567,
+            12345678,
+            123456789,
+            1234567890,
+            12345678901,
+            0.1,
+            0.01,
+            0.001,
+            0.0001,
+            0.00001,
+            0.000001,
+            0.0000001,
+            3.280839895013123,
+            2204.6226218487757,
+            -1234,
+            -12345.67
+        ];
+
+        const resultsDiv = document.getElementById('results');
+        testNumbers.forEach(num => {
+            const formatted = formatNumber(num);
+            const div = document.createElement('div');
+            div.innerHTML = `${num} → "${formatted}"`;
+            resultsDiv.appendChild(div);
+        });
+    </script>
+</body>
+</html>

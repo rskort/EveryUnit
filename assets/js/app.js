@@ -2,57 +2,55 @@ import { conversionCatalog } from "./catalog.js";
 
 const state = {
   categoryId: conversionCatalog[0]?.id ?? null,
-  conversionId: conversionCatalog[0]?.defaultConversionId ?? null,
-  reversed: false,
-  syncing: false,
+  fromUnit: null,
+  toUnit: null,
   lastEdited: "from"
 };
 
 const elements = {
-  categorySelect: document.getElementById("category-select"),
-  conversionSelect: document.getElementById("conversion-select"),
+  disciplineButtons: document.getElementById("discipline-buttons"),
+  fromUnitButtons: document.getElementById("from-unit-buttons"),
+  toUnitButtons: document.getElementById("to-unit-buttons"),
   reverseButton: document.getElementById("reverse-button"),
-  fromLabel: document.getElementById("from-label"),
-  fromUnit: document.getElementById("from-unit"),
   fromValue: document.getElementById("from-value"),
-  toLabel: document.getElementById("to-label"),
-  toUnit: document.getElementById("to-unit"),
   toValue: document.getElementById("to-value"),
-  note: document.getElementById("conversion-meta"),
-  totalCount: document.getElementById("conversion-count")
+  fromUnitDisplay: document.getElementById("from-unit-display"),
+  toUnitDisplay: document.getElementById("to-unit-display"),
+  note: document.getElementById("conversion-meta")
 };
 
 const getCategory = (id) => conversionCatalog.find((category) => category.id === id) ?? null;
 
-const getConversion = (category, conversionId) =>
-  category?.conversions.find((conversion) => conversion.id === conversionId) ?? null;
+const getAllUnitsForCategory = (category) => {
+  return category.units || [];
+};
 
-const getActiveContext = () => {
-  const category = getCategory(state.categoryId);
-  const conversion = getConversion(category, state.conversionId);
-  if (!category || !conversion) {
-    return null;
+const convertValue = (value, fromUnit, toUnit, category) => {
+  // Handle same unit
+  if (fromUnit.name === toUnit.name) {
+    return value;
   }
-
-  if (!state.reversed) {
-    return {
-      category,
-      conversion,
-      fromUnit: conversion.fromUnit,
-      toUnit: conversion.toUnit,
-      forward: conversion.transform.forward,
-      reverse: conversion.transform.reverse
-    };
+  
+  // Handle temperature separately (non-linear conversions)
+  if (category.id === "temperature") {
+    const baseValue = typeof fromUnit.toBase === 'function' 
+      ? fromUnit.toBase(value) 
+      : value * fromUnit.toBase;
+    
+    const result = typeof toUnit.fromBase === 'function'
+      ? toUnit.fromBase(baseValue)
+      : baseValue / toUnit.toBase;
+    
+    return result;
   }
-
-  return {
-    category,
-    conversion,
-    fromUnit: conversion.toUnit,
-    toUnit: conversion.fromUnit,
-    forward: conversion.transform.reverse,
-    reverse: conversion.transform.forward
-  };
+  
+  // Convert from source unit to base unit
+  const baseValue = value * fromUnit.toBase;
+  
+  // Convert from base unit to target unit
+  const result = baseValue / toUnit.toBase;
+  
+  return result;
 };
 
 const formatNumber = (value) => {
@@ -61,187 +59,244 @@ const formatNumber = (value) => {
   }
 
   const absolute = Math.abs(value);
-  let maximumFractionDigits = 6;
-
+  
+  // Use scientific notation for very large numbers (>= 1e9) or very small numbers (< 1e-6)
+  if (absolute >= 1e9 || (absolute < 1e-6 && absolute !== 0)) {
+    return value.toExponential(6);
+  }
+  
+  // Determine appropriate decimal places based on magnitude
+  let maximumFractionDigits;
   if (absolute >= 1000) {
-    maximumFractionDigits = 2;
-  } else if (absolute >= 1) {
+    maximumFractionDigits = 3;
+  } else if (absolute >= 100) {
     maximumFractionDigits = 4;
+  } else if (absolute >= 10) {
+    maximumFractionDigits = 5;
+  } else if (absolute >= 1) {
+    maximumFractionDigits = 6;
+  } else if (absolute >= 0.1) {
+    maximumFractionDigits = 7;
+  } else if (absolute >= 0.01) {
+    maximumFractionDigits = 8;
+  } else {
+    maximumFractionDigits = 9;
   }
 
-
-  return value.toLocaleString(undefined, {
+  // Just return the basic formatted number for now - no fancy spacing
+  return value.toLocaleString('en-US', {
     maximumFractionDigits,
     useGrouping: false
   });
 };
 
-const populateCategorySelect = () => {
-  elements.categorySelect.innerHTML = "";
-  conversionCatalog.forEach((category) => {
-    const option = document.createElement("option");
-    option.value = category.id;
-    option.textContent = category.name;
-    elements.categorySelect.appendChild(option);
+const createDisciplineButtons = () => {
+  elements.disciplineButtons.innerHTML = "";
+  
+  conversionCatalog.forEach(category => {
+    const button = document.createElement("button");
+    button.className = "discipline-btn";
+    button.textContent = category.name;
+    button.dataset.categoryId = category.id;
+    
+    if (category.id === state.categoryId) {
+      button.classList.add("active");
+    }
+    
+    button.addEventListener("click", () => handleDisciplineChange(category.id));
+    elements.disciplineButtons.appendChild(button);
   });
 };
 
-const populateConversionSelect = (category) => {
-  elements.conversionSelect.innerHTML = "";
-  if (!category) {
-    return;
-  }
-
-  category.conversions.forEach((conversion) => {
-    const option = document.createElement("option");
-    option.value = conversion.id;
-    option.textContent = conversion.label;
-    elements.conversionSelect.appendChild(option);
+const createUnitButtons = () => {
+  const category = getCategory(state.categoryId);
+  if (!category) return;
+  
+  const units = getAllUnitsForCategory(category);
+  
+  // Create from unit buttons
+  elements.fromUnitButtons.innerHTML = "";
+  units.forEach(unit => {
+    const button = document.createElement("button");
+    button.className = "unit-btn";
+    button.textContent = unit.unit;
+    button.title = unit.name;
+    button.dataset.unitName = unit.name;
+    button.dataset.unitSymbol = unit.unit;
+    
+    if (state.fromUnit && state.fromUnit.name === unit.name) {
+      button.classList.add("active");
+    }
+    
+    button.addEventListener("click", () => handleFromUnitChange(unit));
+    elements.fromUnitButtons.appendChild(button);
+  });
+  
+  // Create to unit buttons
+  elements.toUnitButtons.innerHTML = "";
+  units.forEach(unit => {
+    const button = document.createElement("button");
+    button.className = "unit-btn";
+    button.textContent = unit.unit;
+    button.title = unit.name;
+    button.dataset.unitName = unit.name;
+    button.dataset.unitSymbol = unit.unit;
+    
+    if (state.toUnit && state.toUnit.name === unit.name) {
+      button.classList.add("active");
+    }
+    
+    button.addEventListener("click", () => handleToUnitChange(unit));
+    elements.toUnitButtons.appendChild(button);
   });
 };
 
-const updateConversionMeta = () => {
-  const context = getActiveContext();
-  elements.note.textContent = context?.conversion.note ?? "";
-};
-
-const renderConversionDetails = () => {
-  const context = getActiveContext();
-  elements.reverseButton.setAttribute("aria-pressed", String(state.reversed));
-
-  if (!context) {
-    elements.fromLabel.textContent = "Select a conversion";
-    elements.toLabel.textContent = "";
-    elements.fromUnit.textContent = "";
-    elements.toUnit.textContent = "";
+const updateDisplay = () => {
+  // Update unit displays
+  elements.fromUnitDisplay.textContent = state.fromUnit ? state.fromUnit.unit : "";
+  elements.toUnitDisplay.textContent = state.toUnit ? state.toUnit.unit : "";
+  
+  // Update conversion note
+  if (state.fromUnit && state.toUnit) {
+    if (state.fromUnit.name === state.toUnit.name) {
+      elements.note.textContent = "Same unit conversion (1:1 ratio)";
+    } else {
+      const category = getCategory(state.categoryId);
+      const sampleValue = 1;
+      const convertedValue = convertValue(sampleValue, state.fromUnit, state.toUnit, category);
+      elements.note.textContent = `1 ${state.fromUnit.unit} = ${formatNumber(convertedValue)} ${state.toUnit.unit}`;
+    }
+  } else {
     elements.note.textContent = "";
-    return;
   }
-
-  elements.fromLabel.textContent = context.fromUnit.name;
-  elements.fromUnit.textContent = context.fromUnit.unit;
-  elements.toLabel.textContent = context.toUnit.name;
-  elements.toUnit.textContent = context.toUnit.unit;
-
-  updateConversionMeta();
 };
 
-const syncValues = (source) => {
-  const context = getActiveContext();
-  if (!context) {
+const syncValues = () => {
+  if (!state.fromUnit || !state.toUnit) {
     return;
   }
-
+  
+  const category = getCategory(state.categoryId);
+  const source = state.lastEdited;
   const reader = source === "from" ? elements.fromValue : elements.toValue;
   const writer = source === "from" ? elements.toValue : elements.fromValue;
-  const converter = source === "from" ? context.forward : context.reverse;
-
+  
   if (reader.value.trim() === "") {
     writer.value = "";
     return;
   }
-
+  
   const sanitized = reader.value.replace(/,/g, "");
   const numeric = Number.parseFloat(sanitized);
   if (Number.isNaN(numeric)) {
     writer.value = "";
     return;
   }
-
-  const raw = converter(numeric);
-  writer.value = formatNumber(raw);
+  
+  let result;
+  if (source === "from") {
+    result = convertValue(numeric, state.fromUnit, state.toUnit, category);
+  } else {
+    result = convertValue(numeric, state.toUnit, state.fromUnit, category);
+  }
+  
+  writer.value = formatNumber(result);
 };
 
-const resetInputs = () => {
-  state.lastEdited = "from";
-  elements.fromValue.value = "1";
-  syncValues("from");
-};
-
-const handleCategoryChange = (categoryId) => {
+const handleDisciplineChange = (categoryId) => {
+  state.categoryId = categoryId;
+  
+  // Set default units for this category
   const category = getCategory(categoryId);
-  if (!category) {
-    return;
+  if (category && category.units && category.units.length >= 2) {
+    // Use first two units as defaults
+    state.fromUnit = category.units[0];
+    state.toUnit = category.units[1];
+  } else {
+    state.fromUnit = null;
+    state.toUnit = null;
   }
-
-  state.categoryId = category.id;
-  state.conversionId = category.defaultConversionId ?? category.conversions[0]?.id ?? null;
-  state.reversed = false;
-
-  populateConversionSelect(category);
-  elements.categorySelect.value = state.categoryId;
-  elements.conversionSelect.value = state.conversionId ?? "";
-
-  renderConversionDetails();
-  resetInputs();
+  
+  // Update active discipline button
+  document.querySelectorAll('.discipline-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.categoryId === categoryId);
+  });
+  
+  createUnitButtons();
+  updateDisplay();
+  
+  // Set default value and calculate
+  elements.fromValue.value = "1";
+  state.lastEdited = "from";
+  syncValues();
 };
 
-const handleConversionChange = (conversionId) => {
-  const category = getCategory(state.categoryId);
-  if (!category) {
-    return;
+const handleFromUnitChange = (unit) => {
+  state.fromUnit = unit;
+  
+  // Update active from unit button
+  document.querySelectorAll('#from-unit-buttons .unit-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.unitName === unit.name);
+  });
+  
+  updateDisplay();
+  
+  // Recalculate from the current input
+  if (state.lastEdited === "from" && elements.fromValue.value.trim() !== "") {
+    syncValues();
+  } else if (state.lastEdited === "to" && elements.toValue.value.trim() !== "") {
+    syncValues();
   }
+};
 
-  const conversion = getConversion(category, conversionId);
-  if (!conversion) {
-    return;
+const handleToUnitChange = (unit) => {
+  state.toUnit = unit;
+  
+  // Update active to unit button
+  document.querySelectorAll('#to-unit-buttons .unit-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.unitName === unit.name);
+  });
+  
+  updateDisplay();
+  
+  // Recalculate from the current input
+  if (state.lastEdited === "from" && elements.fromValue.value.trim() !== "") {
+    syncValues();
+  } else if (state.lastEdited === "to" && elements.toValue.value.trim() !== "") {
+    syncValues();
   }
-
-  state.conversionId = conversion.id;
-  elements.conversionSelect.value = conversion.id;
-
-  renderConversionDetails();
-  resetInputs();
 };
 
 const handleReverse = () => {
-  const previousFrom = elements.fromValue.value;
-  const previousTo = elements.toValue.value;
+  if (!state.fromUnit || !state.toUnit) return;
+  
+  // Swap units
+  [state.fromUnit, state.toUnit] = [state.toUnit, state.fromUnit];
+  
+  // Swap values
+  [elements.fromValue.value, elements.toValue.value] = [elements.toValue.value, elements.fromValue.value];
+  
+  // Update button states
+  createUnitButtons();
+  updateDisplay();
+};
 
-  state.reversed = !state.reversed;
-  renderConversionDetails();
-
-  elements.fromValue.value = previousTo;
-  elements.toValue.value = previousFrom;
-
-  if (state.lastEdited === "from") {
-    syncValues("from");
-  } else {
-    syncValues("to");
-  }
+const clearValues = () => {
+  elements.fromValue.value = "";
+  elements.toValue.value = "";
 };
 
 const bindEvents = () => {
-  elements.categorySelect.addEventListener("change", (event) => {
-    handleCategoryChange(event.target.value);
-  });
-
-  elements.conversionSelect.addEventListener("change", (event) => {
-    handleConversionChange(event.target.value);
-  });
-
-  elements.reverseButton.addEventListener("click", () => {
-    handleReverse();
-  });
+  elements.reverseButton.addEventListener("click", handleReverse);
 
   elements.fromValue.addEventListener("input", () => {
-    if (state.syncing) {
-      return;
-    }
-    state.syncing = true;
     state.lastEdited = "from";
-    syncValues("from");
-    state.syncing = false;
+    syncValues();
   });
 
   elements.toValue.addEventListener("input", () => {
-    if (state.syncing) {
-      return;
-    }
-    state.syncing = true;
     state.lastEdited = "to";
-    syncValues("to");
-    state.syncing = false;
+    syncValues();
   });
 
   elements.fromValue.addEventListener("focus", () => {
@@ -253,27 +308,32 @@ const bindEvents = () => {
   });
 };
 
-const updateConversionCount = () => {
-  const count = conversionCatalog.reduce((total, category) => total + category.conversions.length, 0);
-  if (elements.totalCount) {
-    elements.totalCount.textContent = count.toString();
-  }
-};
-
 const initialize = () => {
   const year = document.getElementById("year");
   if (year) {
     year.textContent = new Date().getFullYear().toString();
   }
 
-  populateCategorySelect();
-  const initialCategoryId = state.categoryId ?? conversionCatalog[0]?.id ?? null;
-  const category = getCategory(initialCategoryId);
-  populateConversionSelect(category);
-
-  handleCategoryChange(initialCategoryId);
+  createDisciplineButtons();
+  
+  // Initialize with the first category and its default units
+  if (state.categoryId) {
+    const category = getCategory(state.categoryId);
+    if (category && category.units && category.units.length >= 2) {
+      state.fromUnit = category.units[0];
+      state.toUnit = category.units[1];
+    }
+    
+    createUnitButtons();
+    updateDisplay();
+    
+    // Set initial value and calculate
+    elements.fromValue.value = "1";
+    state.lastEdited = "from";
+    syncValues();
+  }
+  
   bindEvents();
-  updateConversionCount();
 };
 
 initialize();

@@ -11,11 +11,11 @@
   --brand: #2563eb;
   --brand-soft: rgba(37, 99, 235, 0.12);
   --accent: #10b981;
-  --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.08);
-  --shadow-lighter: 0 6px 20px rgba(15, 23, 42, 0.06);
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 10px;
+  --shadow-soft: 0 1.125rem 2.5rem rgba(15, 23, 42, 0.08);
+  --shadow-lighter: 0 0.375rem 1.25rem rgba(15, 23, 42, 0.06);
+  --radius-lg: 1.5rem;
+  --radius-md: 1rem;
+  --radius-sm: 0.625rem;
 }
 
 *,
@@ -50,7 +50,7 @@ body {
 }
 
 .site-header h1 {
-  margin: 0 0 8px;
+  margin: 0 0 0.5rem;
   font-size: 2.2rem;
   font-weight: 700;
 }
@@ -65,7 +65,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 22px;
+  padding: 0.75rem 1.375rem;
   border-radius: 999px;
   background: var(--brand);
   color: #fff;
@@ -79,13 +79,13 @@ body {
 .primary-link:hover,
 .primary-link:focus {
   background: #1d4ed8;
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.25);
+  transform: translateY(-0.0625rem);
+  box-shadow: 0 0.875rem 1.875rem rgba(37, 99, 235, 0.25);
 }
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(0, 1fr) 18.75rem;
   margin-top: 1rem;
 }
 
@@ -100,47 +100,93 @@ body {
 }
 
 .converter-header {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) 60px;
-  align-items: end;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.input-group {
+.discipline-section {
   display: grid;
+  gap: 0.75rem;
 }
 
-.input-group label {
+.section-label {
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
+  margin-left: 0.5rem;
 }
 
-.input-group select {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: var(--radius-md);
+.discipline-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.discipline-btn {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border-strong);
   background: var(--surface-muted);
-  font-size: 1rem;
   color: var(--text);
-  transition: border 0.2s ease, box-shadow 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.input-group select:focus {
-  outline: none;
+.discipline-btn:hover {
+  background: var(--surface);
   border-color: var(--brand);
-  box-shadow: 0 0 0 4px var(--brand-soft);
+}
+
+.discipline-btn.active {
+  background: var(--brand);
+  color: white;
+  border-color: var(--brand);
+}
+
+.unit-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.75rem;
+}
+
+.unit-btn {
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: "Fira Mono", Consolas, monospace;
+  white-space: nowrap;
+  min-width: fit-content;
+  text-align: center;
+}
+
+.unit-btn:hover {
+  border-color: var(--brand);
+  color: var(--text);
+}
+
+.unit-btn.active {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+  color: var(--brand);
+  font-weight: 600;
 }
 
 .reverse-button {
   justify-self: end;
-  width: 54px;
-  height: 54px;
+  width: 3.375rem;
+  height: 3.375rem;
   border-radius: 50%;
-  border: 1px solid var(--border-strong);
+  border: 0.03125rem solid var(--border-strong);
   background: var(--surface-muted);
   font-size: 1.4rem;
   color: var(--brand);
@@ -158,16 +204,17 @@ body {
 
 .conversion-panel {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: 1fr 3.75rem 1fr;
+  gap: 1rem;
+  align-items: center;
 }
 
 .conversion-side {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 22px 24px;
+  padding: 1.375rem 1.5rem;
   display: grid;
-  gap: 16px;
+  gap: 1rem;
   background: var(--surface-muted);
 }
 
@@ -175,7 +222,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .side-title {
@@ -189,7 +236,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 15px;
+  padding: 0.375rem 0.9375rem;
   border-radius: 999px;
   font-size: 0.78rem;
   letter-spacing: 0.08em;
@@ -206,12 +253,12 @@ body {
 .field-input {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.75rem;
   background: #fff;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
-  padding: 16px 18px;
-  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
+  padding: 1rem 1.125rem;
+  box-shadow: inset 0 0.0625rem 0.125rem rgba(15, 23, 42, 0.03);
 }
 
 .field-input input {
@@ -240,14 +287,14 @@ body {
 }
 
 .quick-info {
-  margin-top: 32px;
+  margin-top: 2rem;
   background: var(--surface);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
-  padding: 30px 32px;
+  padding: 1.875rem 2rem;
   display: grid;
-  gap: 22px;
+  gap: 1.375rem;
 }
 
 .quick-info h3 {
@@ -258,17 +305,17 @@ body {
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(13.75rem, 1fr));
+  gap: 1.375rem;
 }
 
 .info-grid article {
   background: var(--surface-muted);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  padding: 20px 22px;
+  padding: 1.25rem 1.375rem;
   display: grid;
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 .info-grid h4 {
@@ -284,24 +331,24 @@ body {
 
 .sidebar {
   display: grid;
-  gap: 24px;
+  gap: 1.5rem;
 }
 
 .ad-slot {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 28px 26px;
+  padding: 1.75rem 1.625rem;
   box-shadow: var(--shadow-soft);
   display: grid;
-  gap: 16px;
+  gap: 1rem;
 }
 
 .ad-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 14px;
+  padding: 0.375rem 0.875rem;
   border-radius: 999px;
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -314,7 +361,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 11px 18px;
+  padding: 0.6875rem 1.125rem;
   border-radius: 999px;
   background: var(--brand);
   color: #fff;
@@ -325,7 +372,7 @@ body {
 
 .ad-cta:hover,
 .ad-cta:focus {
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
   background: #1d4ed8;
 }
 
@@ -333,25 +380,25 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 26px 28px;
+  padding: 1.625rem 1.75rem;
   box-shadow: var(--shadow-soft);
 }
 
 .insights h3 {
-  margin: 0 0 16px;
+  margin: 0 0 1rem;
   font-weight: 600;
 }
 
 .insights ul {
   margin: 0;
-  padding-left: 20px;
+  padding-left: 1.25rem;
   display: grid;
-  gap: 10px;
+  gap: 0.625rem;
   color: var(--muted);
 }
 
 .site-footer {
-  margin-top: 48px;
+  margin-top: 3rem;
   text-align: center;
   color: var(--muted);
   font-size: 0.95rem;
@@ -370,7 +417,7 @@ code {
 
 @media (max-width: 840px) {
   .page-shell {
-    padding: 36px 18px 48px;
+    padding: 2.25rem 1.125rem 3rem;
   }
 
   .site-header {
@@ -378,18 +425,36 @@ code {
     align-items: flex-start;
   }
 
-  .converter-header {
+  .discipline-buttons {
+    flex-direction: column;
+  }
+
+  .discipline-btn {
+    text-align: center;
+  }
+
+  .conversion-panel {
     grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
   }
 
   .reverse-button {
     justify-self: stretch;
     width: 100%;
     border-radius: var(--radius-md);
+    order: 2;
   }
 
-  .conversion-panel {
-    grid-template-columns: minmax(0, 1fr);
+  .conversion-side:first-child {
+    order: 1;
+  }
+
+  .conversion-side:last-child {
+    order: 3;
+  }
+
+  .unit-buttons {
+    justify-content: center;
   }
 }
 
